@@ -19,6 +19,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -256,7 +257,7 @@ public class Exporter {
 	 * Function to begin exporting process
 	 */
 	
-	public void process(Label type, Map<Label, Configuration> sources) throws Neo4jException {
+	public void process(Map<Label, Configuration> sources) throws Neo4jException {
 		
 	//	System.out.println("Target folder: " + outputFolder);
 		System.out.println("Neo4j folder: " + neo4jFolder);
@@ -302,13 +303,11 @@ public class Exporter {
 		long beginTime = System.currentTimeMillis();
 							
 		try ( Transaction tx = graphDb.beginTx() ) {
-			try (ResourceIterator<Node> nodes = graphDb.findNodes(type)) {
-				while (nodes.hasNext()) {
-					Node node = nodes.next();
-					if (isValid(node, sources)) 
-						processNode(node, sources);
-				}
-			} 
+			graphDb
+				.getAllNodes()
+				.stream()
+				.filter(n -> isValid(n, sources))
+				.forEach(n -> processNode(n, sources));
 		}
 		
 		long endTime = System.currentTimeMillis();

@@ -103,7 +103,7 @@ public class App {
 	       	exporter.setMaxNodes(maxNodes);
 	       	exporter.setMaxSiblings(maxSiblings);
 	       	exporter.setTestNodeId(testNodeId);
-	        exporter.process(NodeType.dataset, sources);
+	        exporter.process(sources);
 	        
 		} catch (Exception e) {
 			e.printStackTrace();
