@@ -55,9 +55,10 @@ public class App {
 	
 	public static void main(String[] args) {
 		try {
-			String configuration = args[0];
+			
+			String configuration = args.length > 0 ? args[0] : null;
 			if (StringUtils.isEmpty(configuration)) {
-				configuration = "properties/export_graph_json.properties";
+				configuration = "export.conf";
 			}
 			
 			Properties properties = new Properties();
