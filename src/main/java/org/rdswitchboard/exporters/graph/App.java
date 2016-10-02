@@ -71,14 +71,8 @@ public class App {
 
 			int testNodeId = Integer.parseInt(properties.getProperty("test.node.id", "0"));
 			
-			if (StringUtils.isEmpty(s3Bucket)) {
-				System.out.println("S3 Bucket name can not be empty");
-				
-				System.exit(1);
-			}
-
-			if (StringUtils.isEmpty(s3Key)) {
-				System.out.println("S3 Key prefix can not be empty");
+			if (StringUtils.isEmpty(outputFolder) && (StringUtils.isEmpty(s3Bucket) || StringUtils.isEmpty(s3Key))) {
+				System.out.println("Output configuration can not be empty");
 				
 				System.exit(1);
 			}
@@ -98,10 +92,13 @@ public class App {
 	       	exporter.setNeo4jFolder(sourceNeo4jFolder);
 	       	exporter.setAwsInstanceProfileCredentials();
 	       	
-	       	exporter.setOutputFolder(outputFolder);
-	       	exporter.setS3Bucket(s3Bucket);
-	       	exporter.setS3Key(s3Key);
-	       	exporter.enablePublicReadRights(s3Public);
+	       	if (!StringUtils.isEmpty(outputFolder)) 
+	       		exporter.setOutputFolder(outputFolder);
+	       	if (!StringUtils.isEmpty(s3Bucket) && !StringUtils.isEmpty(s3Key)) {
+	       		exporter.setS3Bucket(s3Bucket);
+	       		exporter.setS3Key(s3Key);
+	       		exporter.enablePublicReadRights(s3Public);
+	       	}
 	       	exporter.setMaxLevel(maxLevel);
 	       	exporter.setMaxNodes(maxNodes);
 	       	exporter.setMaxSiblings(maxSiblings);
