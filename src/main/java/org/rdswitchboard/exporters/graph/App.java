@@ -60,6 +60,7 @@ public class App {
 			
 			String sourceNeo4jFolder = properties.getProperty("neo4j", "neo4j");
 			
+			String outputFolder = properties.getProperty("output");
 			String s3Bucket = properties.getProperty("s3.bucket");
 			String s3Key = properties.getProperty("s3.key");
 			boolean s3Public = Boolean.parseBoolean(properties.getProperty("s3.public", "false"));
@@ -93,18 +94,19 @@ public class App {
 	        keys.put(NodeSource.orcid, PROPERTY_ORCID_ID);
 	        keys.put(NodeSource.dara, PROPERTY_DOI);
 	        
-	       	Exporter expoter = new Exporter();
-	       	expoter.setNeo4jFolder(sourceNeo4jFolder);
-	       	expoter.setAwsInstanceProfileCredentials();
+	       	Exporter exporter = new Exporter();
+	       	exporter.setNeo4jFolder(sourceNeo4jFolder);
+	       	exporter.setAwsInstanceProfileCredentials();
 	       	
-	       	expoter.setS3Bucket(s3Bucket);
-	       	expoter.setS3Key(s3Key);
-	       	expoter.enablePublicReadRights(s3Public);
-	       	expoter.setMaxLevel(maxLevel);
-	       	expoter.setMaxNodes(maxNodes);
-	       	expoter.setMaxSiblings(maxSiblings);
-	       	expoter.setTestNodeId(testNodeId);
-	        expoter.process(NodeType.dataset, sources, keys);
+	       	exporter.setOutputFolder(outputFolder);
+	       	exporter.setS3Bucket(s3Bucket);
+	       	exporter.setS3Key(s3Key);
+	       	exporter.enablePublicReadRights(s3Public);
+	       	exporter.setMaxLevel(maxLevel);
+	       	exporter.setMaxNodes(maxNodes);
+	       	exporter.setMaxSiblings(maxSiblings);
+	       	exporter.setTestNodeId(testNodeId);
+	        exporter.process(NodeType.dataset, sources, keys);
 	        
 		} catch (Exception e) {
 			e.printStackTrace();

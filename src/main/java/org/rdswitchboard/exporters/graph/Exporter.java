@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
@@ -89,6 +90,7 @@ public class Exporter {
 	private String s3Bucket;
 	private String s3Key;
 	private String neo4jFolder;
+	private String outputFolder;
 		
 	//private AWSCredentials awsCredentials;
 	private AmazonS3 s3client;
@@ -221,6 +223,13 @@ public class Exporter {
 	 * @param label
 	 */
 	
+	public void setOutputFolder(String outputFolder) {
+		this.outputFolder = outputFolder;
+	}
+	
+	public String getOutputFolder() {
+		return outputFolder;
+	}
 	
 	
 	public long getTestNodeId() {
@@ -420,31 +429,31 @@ public class Exporter {
 			
 			if (jsonGraph.getNodes() != null && jsonGraph.getNodes().size() > 1) {
 				String jsonString = mapper.writeValueAsString(jsonGraph);
-			
-			/*File jsonFile = new File(outputFolder, JSON_FILE);
-			Writer writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(jsonFile), "utf-8"));
-			
-			writer.write(jsonString);
-			writer.close();
-			*/
-			
+				
 				for (String jsonName : jsonNames) {
-					System.out.println("Put Object: " + s3Bucket + "/" + s3Key + jsonName);
-					
-					byte[] bytes = jsonString.getBytes(charset);
-					
-					ObjectMetadata metadata = new ObjectMetadata();
-					metadata.setContentEncoding(CONTENT_ENCODING);
-					metadata.setContentType(CONTENT_TYPE);
-					metadata.setContentLength(bytes.length);
-					
-					InputStream inputStream = new ByteArrayInputStream(bytes);
-					
-					PutObjectRequest request = new PutObjectRequest(s3Bucket, s3Key + jsonName, inputStream, metadata);
-					if (publicReadRights)
-						request.setCannedAcl(CannedAccessControlList.PublicRead);
-					
-					s3client.putObject(request);
+					System.out.println("Put Object: " + jsonName);
+
+					if (!StringUtils.isEmpty(outputFolder)) {
+						FileUtils.writeStringToFile(new File(outputFolder, jsonName), jsonString);
+					}
+			
+					if (!StringUtils.isEmpty(s3Bucket) && !StringUtils.isEmpty(s3Key)) {
+						
+						byte[] bytes = jsonString.getBytes(charset);
+						
+						ObjectMetadata metadata = new ObjectMetadata();
+						metadata.setContentEncoding(CONTENT_ENCODING);
+						metadata.setContentType(CONTENT_TYPE);
+						metadata.setContentLength(bytes.length);
+						
+						InputStream inputStream = new ByteArrayInputStream(bytes);
+						
+						PutObjectRequest request = new PutObjectRequest(s3Bucket, s3Key + jsonName, inputStream, metadata);
+						if (publicReadRights)
+							request.setCannedAcl(CannedAccessControlList.PublicRead);
+						
+						s3client.putObject(request);
+					}
 											
 					++nodeCounter;
 				}
