@@ -82,18 +82,11 @@ public class App {
 				System.exit(1);
 			}
 			
-	        Map<Label, Label[]> sources = new HashMap<Label, Label[]>();
-	        sources.put(NodeSource.ands, null);
-	        sources.put(NodeSource.dryad, new Label[] { NodeSource.crossref });
-	        sources.put(NodeSource.dara, null);
-	        sources.put(NodeSource.cern, new Label[] { NodeSource.ands, NodeSource.dryad, NodeSource.crossref, NodeSource.orcid, 
-	        		NodeSource.web, NodeSource.dli, NodeSource.dara});
-	        			
-	        Map<Label, String> keys = new HashMap<Label, String>();
-	        keys.put(NodeSource.ands, PROPERTY_LOCAL_ID);
-	        keys.put(NodeSource.orcid, PROPERTY_ORCID_ID);
-	        keys.put(NodeSource.dara, PROPERTY_DOI);
-	        
+	        Map<Label, Configuration> sources = new HashMap<>();
+	        sources.put(NodeSource.ands, new Configuration(new Label[] { NodeType.dataset, NodeType.researcher, NodeType.publication, NodeType.institution }, null, PROPERTY_LOCAL_ID));
+	        sources.put(NodeSource.dara, new Configuration(new Label[] { NodeType.dataset, NodeType.researcher, NodeType.publication, NodeType.institution }, null, PROPERTY_DOI));
+	        sources.put(NodeSource.orcid, new Configuration(new Label[] { NodeType.researcher }, null, PROPERTY_ORCID_ID));
+	       
 	       	Exporter exporter = new Exporter();
 	       	exporter.setNeo4jFolder(sourceNeo4jFolder);
 	       	exporter.setAwsInstanceProfileCredentials();
@@ -109,7 +102,7 @@ public class App {
 	       	exporter.setMaxNodes(maxNodes);
 	       	exporter.setMaxSiblings(maxSiblings);
 	       	exporter.setTestNodeId(testNodeId);
-	        exporter.process(NodeType.dataset, sources, keys);
+	        exporter.process(NodeType.dataset, sources);
 	        
 		} catch (Exception e) {
 			e.printStackTrace();

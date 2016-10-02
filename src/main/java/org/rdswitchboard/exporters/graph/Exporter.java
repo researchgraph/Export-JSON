@@ -256,7 +256,7 @@ public class Exporter {
 	 * Function to begin exporting process
 	 */
 	
-	public void process(Label type, Map<Label, Label[]> sources, Map<Label, String> keys) throws Neo4jException {
+	public void process(Label type, Map<Label, Configuration> sources) throws Neo4jException {
 		
 	//	System.out.println("Target folder: " + outputFolder);
 		System.out.println("Neo4j folder: " + neo4jFolder);
@@ -279,14 +279,14 @@ public class Exporter {
 					System.exit(1);
 				} 
 				
-				if (!isValidSource(node, sources)) {
+				if (!isValid(node, sources)) {
 					System.err.println("Test Node is not valid for exporting");
 					System.exit(1);
 				} 
 				
 				System.out.println("Exporting test node");
 				
-				processNode(node, keys);
+				processNode(node, sources);
 				
 				System.exit(0);
 			}
@@ -305,8 +305,8 @@ public class Exporter {
 			try (ResourceIterator<Node> nodes = graphDb.findNodes(type)) {
 				while (nodes.hasNext()) {
 					Node node = nodes.next();
-					if (isValidSource(node, sources)) 
-						processNode(node, keys);
+					if (isValid(node, sources)) 
+						processNode(node, sources);
 				}
 			} 
 		}
@@ -315,21 +315,50 @@ public class Exporter {
 		
 		System.out.println(String.format("Done. Exported %d nodes over %d ms. Average %f ms per node", 
 				nodeCounter, endTime - beginTime, (float)(endTime - beginTime) / (float) nodeCounter));
-	} 
+	}
+	
+	private boolean hasType(Node node, final Label[] types) {
+		// if array is empty, there is no restrictions
+		if (null == types || types.length == 0) {
+			return true;
+		}
 
-	private boolean isValidSource(Node node,  Map<Label, Label[]> sources) {
-		for (Map.Entry<Label, Label[]> entry : sources.entrySet()) {
-			if (node.hasLabel(entry.getKey())) {
-				if (entry.getValue() == null)
+		for (Label label : types) {
+			if (node.hasLabel(label)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+
+	private boolean hasConnection(Node node, final Label[] sources) {
+		// if array is empty, there is no restrictions
+		if (null == sources || sources.length == 0) {
+			return true;
+		}
+		
+		Iterable<Relationship> relationships = node.getRelationships();
+		for (Relationship relationship : relationships) {
+			Node other = relationship.getOtherNode(node);
+			for (Label label : sources) {
+				if (other.hasLabel(label)) {
 					return true;
-				
-				Iterable<Relationship> relationships = node.getRelationships();
-				for (Relationship relationship : relationships) {
-					Node other = relationship.getOtherNode(node);
-					for (Label label : entry.getValue())
-						if (other.hasLabel(label))
-							return true;
 				}
+			}
+		}
+		
+		return false;
+	}
+	
+	private boolean isValid(Node node,  Map<Label, Configuration> sources) {
+		for (Map.Entry<Label, Configuration> entry : sources.entrySet()) {
+			if (node.hasLabel(entry.getKey()) 
+					&& node.hasProperty(entry.getValue().getKey())
+					&& hasType(node, entry.getValue().getType())
+					&& hasConnection(node, entry.getValue().getLinkedSource())) {
+				return true;
 			}
 		}
 		
@@ -354,9 +383,9 @@ public class Exporter {
 	 * Function to process a single node
 	 * @param node Node to export
 	 */
-	private void processNode(Node node, Map<Label, String> keys) {
+	private void processNode(Node node, Map<Label, Configuration> sources) {
 		try {
-			Set<String> jsonNames = generateNames(node, keys);
+			Set<String> jsonNames = generateNames(node, sources);
 			if (jsonNames.isEmpty()) {
 				System.out.println("Unable to generate json name for node: " + node.getId());
 				return;
@@ -469,12 +498,12 @@ public class Exporter {
 	 * @param node Node The node to export
 	 * @return json - JSON file name
 	 */
-	public Set<String> generateNames(Node node, Map<Label, String> keys) {
+	public Set<String> generateNames(Node node, Map<Label, Configuration> sources) {
 		Set<String> names = new HashSet<String>();
 		
-		for (Map.Entry<Label, String> entry : keys.entrySet()) {
+		for (Map.Entry<Label, Configuration> entry : sources.entrySet()) {
 			Label label = entry.getKey();
-			String property = entry.getValue();
+			String property = entry.getValue().getKey();
 			if (node.hasLabel(label) && node.hasProperty(property)) {
 				Object originalKeys = node.getProperty(property);
 				if (originalKeys instanceof String) {
