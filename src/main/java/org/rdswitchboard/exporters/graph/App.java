@@ -55,8 +55,13 @@ public class App {
 	
 	public static void main(String[] args) {
 		try {
+			String configuration = args[0];
+			if (StringUtils.isEmpty(configuration)) {
+				configuration = "properties/export_graph_json.properties";
+			}
+			
 			Properties properties = new Properties();
-			loadProperties(properties, args[0]);
+			loadProperties(properties, configuration);
 			
 			String sourceNeo4jFolder = properties.getProperty("neo4j", "neo4j");
 			
