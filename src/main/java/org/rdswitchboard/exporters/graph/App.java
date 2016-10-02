@@ -56,7 +56,7 @@ public class App {
 	public static void main(String[] args) {
 		try {
 			Properties properties = new Properties();
-			loadProperties(properties, "properties/export_graph_json.properties");
+			loadProperties(properties, args[0]);
 			
 			String sourceNeo4jFolder = properties.getProperty("neo4j", "neo4j");
 			
@@ -80,6 +80,7 @@ public class App {
 	        Map<Label, Label[]> sources = new HashMap<Label, Label[]>();
 	        sources.put(NodeSource.ands, null);
 	        sources.put(NodeSource.dryad, new Label[] { NodeSource.crossref });
+	        sources.put(NodeSource.dara, null);
 	        sources.put(NodeSource.cern, new Label[] { NodeSource.ands, NodeSource.dryad, NodeSource.crossref, NodeSource.orcid, 
 	        		NodeSource.web, NodeSource.dli, NodeSource.dara});
 	        			
