@@ -77,7 +77,7 @@ public class App {
 
 			int testNodeId = Integer.parseInt(properties.getProperty("test.node.id", "0"));
 			
-			if (StringUtils.isEmpty(outputFolder) && (StringUtils.isEmpty(s3Bucket) || StringUtils.isEmpty(s3Key))) {
+			if (StringUtils.isEmpty(outputFolder) || ((StringUtils.isEmpty(s3Bucket) && StringUtils.isEmpty(s3Key)))) {
 				System.out.println("Output configuration can not be empty");
 				
 				System.exit(1);
