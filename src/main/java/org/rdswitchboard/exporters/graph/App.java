@@ -89,6 +89,8 @@ public class App {
 	        Map<Label, Configuration> sources = new HashMap<>();
 	        sources.put(NodeSource.ands, new Configuration(new Label[] { NodeType.dataset, NodeType.researcher, NodeType.publication, NodeType.institution }, null, PROPERTY_LOCAL_ID));
 	        sources.put(NodeSource.dara, new Configuration(new Label[] { NodeType.dataset, NodeType.researcher, NodeType.publication, NodeType.institution }, null, PROPERTY_DOI));
+            sources.put(NodeSource.nci, new Configuration(new Label[] { NodeType.dataset, NodeType.publication }, null, PROPERTY_LOCAL_ID));
+            sources.put(NodeSource.gesis, new Configuration(new Label[] { NodeType.dataset, NodeType.publication }, null, PROPERTY_LOCAL_ID));
 	        sources.put(NodeSource.orcid, new Configuration(new Label[] { NodeType.researcher }, null, PROPERTY_ORCID_ID));
 	       
 	       	Exporter exporter = new Exporter();
