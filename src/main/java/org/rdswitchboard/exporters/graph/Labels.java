@@ -8,7 +8,7 @@ public class Labels {
 	}
 	
 	public static enum NodeSource implements Label {
-		system, ands, arc, nhmrc, web, orcid, dryad, crossref, figshare, cern, dli, dara
+		system, ands, arc, nhmrc, web, orcid, dryad, crossref, figshare, cern, dli, dara, nci, gesis
 	}
 
 }
