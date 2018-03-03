@@ -76,7 +76,7 @@ public class Exporter {
 	private static final String NEO4J_CONF = "/conf/neo4j.conf";
 	private static final String NEO4J_DB = "/data/databases/graph.db";
 	
-	private static final String PROPERTY_TYPE = "node_type";
+	private static final String PROPERTY_TYPE = "type";
 	
 	
 	private GraphDatabaseService graphDb;
